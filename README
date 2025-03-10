@@ -5,13 +5,9 @@ Objetivo principal: Mejorar la seguridad de las redes y dispositivos Cisco media
 Requisitos clave:
 
 Integración con productos Cisco (como routers, switches, firewalls, etc.).
-
 Detección de anomalías en el tráfico de red.
-
 Prevención de intrusiones y ataques.
-
 Automatización de respuestas a incidentes.
-
 Escalabilidad para redes grandes y complejas.
 
 2. Arquitectura del software
