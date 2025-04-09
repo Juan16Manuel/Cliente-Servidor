@@ -1,0 +1,85 @@
+import tkinter as tk
+from tkinter import messagebox
+from datetime import datetime
+
+# Configuración de usuarios
+usuarios_registrados = {
+    "admin": "admin123",
+    "usuario1": "clave123",
+    "invitado": "123456"
+}
+
+# Archivo para registrar accesos
+ARCHIVO_REGISTRO = "registro_accesos.txt"
+
+class LoginApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Sistema de Inicio de Sesión")
+        self.root.geometry("350x250")
+        
+        # Widgets
+        tk.Label(root, text="Usuario:").pack(pady=(20, 0))
+        self.usuario_entry = tk.Entry(root, width=30)
+        self.usuario_entry.pack()
+        
+        tk.Label(root, text="Contraseña:").pack(pady=(10, 0))
+        self.password_entry = tk.Entry(root, show="*", width=30)
+        self.password_entry.pack()
+        
+        tk.Button(root, text="Iniciar Sesión", command=self.verificar_login, 
+                 bg="#4CAF50", fg="white", width=15).pack(pady=20)
+        
+        # Botón para ver registros
+        tk.Button(root, text="Ver Registros", command=self.mostrar_registros,
+                bg="#2196F3", fg="white", width=15).pack()
+
+    def registrar_acceso(self, usuario, exito):
+        """Registra el intento de acceso en el archivo"""
+        fecha_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        estado = "ÉXITO" if exito else "FALLIDO"
+        
+        with open(ARCHIVO_REGISTRO, "a", encoding="utf-8") as f:
+            f.write(f"{fecha_hora} - Usuario: {usuario} - Acceso: {estado}\n")
+
+    def verificar_login(self):
+        usuario = self.usuario_entry.get()
+        password = self.password_entry.get()
+        
+        if usuario in usuarios_registrados and usuarios_registrados[usuario] == password:
+            self.registrar_acceso(usuario, True)
+            messagebox.showinfo("Éxito", f"¡Bienvenido, {usuario}!")
+            # Aquí podrías abrir la ventana principal de tu aplicación
+        else:
+            self.registrar_acceso(usuario, False)
+            messagebox.showerror("Error", "Credenciales incorrectas")
+            self.password_entry.delete(0, tk.END)
+
+    def mostrar_registros(self):
+        """Muestra los registros de acceso en una nueva ventana"""
+        try:
+            with open(ARCHIVO_REGISTRO, "r", encoding="utf-8") as f:
+                registros = f.read()
+            
+            ventana_registros = tk.Toplevel(self.root)
+            ventana_registros.title("Registros de Acceso")
+            ventana_registros.geometry("500x400")
+            
+            scrollbar = tk.Scrollbar(ventana_registros)
+            scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+            
+            texto_registros = tk.Text(ventana_registros, yscrollcommand=scrollbar.set)
+            texto_registros.pack(expand=True, fill=tk.BOTH)
+            
+            texto_registros.insert(tk.END, registros or "No hay registros aún")
+            texto_registros.config(state=tk.DISABLED)
+            
+            scrollbar.config(command=texto_registros.yview)
+            
+        except FileNotFoundError:
+            messagebox.showinfo("Registros", "Aún no hay registros de acceso")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = LoginApp(root)
+    root.mainloop()
